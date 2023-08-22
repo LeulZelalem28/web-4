@@ -11,6 +11,8 @@ connectDB()
 app.use(express.json())
 
 app.use('/api/restaurants', require('./routes/api/restaurantRoute'))
+app.use('/register', require('./routes/registerRoute'))
+app.use('/login', require('./routes/loginRoute'))
 app.use(errorHandler);
 app.listen(PORT, () =>{
     console.log(`Server running on port ${PORT}`)

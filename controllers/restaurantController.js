@@ -12,10 +12,10 @@ const getAllRestaurants = asyncHandler(async (req, res) =>{
 //@route POST /api/restaurants/filter
 //@access public
 const filterRestaurants = asyncHandler(async (req, res) =>{
-    const { location, category } = req.body
+    const { address, category } = req.body
     let filter = {};
-    if(location) {
-        filter.location = location
+    if(address) {
+        filter.address = address
     }
     if(category) {
         filter.category = category
