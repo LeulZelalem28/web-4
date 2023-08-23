@@ -19,9 +19,10 @@ const handleRefreshToken = async(req, res) => {
                 //       "username": foundUser.username,
                 //       "roles": roles
                 //   }
-                {
-                  "username":foundUser.username
-                },
+                { UserInfo: {
+                  "username":foundUser.username,
+                  "id": foundUser.id
+                }},
                 process.env.ACCESS_TOKEN_SECRET, 
                 {expiresIn: "10m"})
     res.json({/*roles,*/accessToken})

@@ -7,7 +7,7 @@ const verifyJWT = async (req, res, next) => {
     console.log(token)
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if(err) return sendStatus(403);
-        req.username = decoded.username
+        req.userInfo= decoded.userInfo
         next();
     })
 }

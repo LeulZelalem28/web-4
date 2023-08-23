@@ -17,18 +17,20 @@ const loginUser = async (req, res) => {
       //       "username": foundUser.username,
       //       "roles": roles
       //   }
-      {
-        "username":foundUser.username
-      },
+      { UserInfo: {
+        "username":foundUser.username,
+        "id": foundUser.id
+      }},
       process.env.ACCESS_TOKEN_SECRET, 
       {expiresIn: "10m"})
 
     const refreshToken = jwt.sign(
-      {
-        "username":foundUser.username
-      },
-      process.env.REFRESH_TOKEN_SECRET, 
-      {expiresIn: "1d"})
+      { UserInfo: {
+        "username":foundUser.username,
+        "id": foundUser.id
+      }},
+      process.env.ACCESS_TOKEN_SECRET, 
+      {expiresIn: "10m"})
     foundUser.refreshToken = refreshToken
     const result = await foundUser.save()
     console.log(result)
