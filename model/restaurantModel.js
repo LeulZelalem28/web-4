@@ -36,6 +36,12 @@ const restaurantSchema = new Schema({
         },
       },
     ],
+    reviews: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Review'
+      }
+    ]
 //   picture: { type: Buffer },
 });
 

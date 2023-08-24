@@ -3,10 +3,19 @@ const User = require('../model/userModel')
 const Restaurant = require('../model/restaurantModel')
 const getReviews = async (req, res) => {
     const restaurant_id = req.params.restaurant_id
+    const sort = req.query.sort || 'newest'; // Default sort order is 'newest'
     const foundRestaurant = await Restaurant.find({restaurant_id})
     if(!foundRestaurant) return res.status(404).json({message:"Restaurant not found"})
-    const reviews = await Review.find({restaurant_id}).populate('user_id')
-    res.sendStatus(200)
+    let sortOption;
+  if (sort === 'oldest') {
+    sortOption = { createdAt: 1 };
+  } else {
+    sortOption = { createdAt: -1 };
+  }
+
+  const reviews = await Review.find({ restaurant_id }).sort(sortOption)
+    // const reviews = await Review.find({restaurant_id}).populate('user_id')
+    res.sendStatus(200).json({reviews})
 }
 
 const postReview = async (req, res) => {
@@ -23,7 +32,59 @@ const postReview = async (req, res) => {
         rating,
         comment
         })
-    res.status(200).json({postedReview})
-}
+    const reviews = await Review.find({restaurant_id});
+    const totalRatings = reviews.reduce((sum, review) => {
+        sum += review.rating
+    },0)
+    const averageRating = totalRatings/reviews.length
+    foundRestaurant.rating = averageRating;
+    await foundRestaurant.save()
+    res.status(200).json({postedReview})}
+
+    const updatePost = async (req, res) => {
+        const reviewId = req.params.reviewId;
+        const user_id = req.userInfo.id
+        const { rating, comment } = req.body
+
+        const review = await Review.findById(reviewId)
+        if (!review) {
+            return res.status(404).json({ error: 'Review not found' });
+          }
+        if (review.user_id !== user_id) {
+            return res.status(403).json({ error: 'You are not authorized to update this review' });
+          }
+      
+        const updatedReview = await Review.findByIdAndUpdate(
+            reviewId, 
+            { rating, comment }, 
+            { new: true });
+        const restaurant_id = review.restaurant_id
+        //const reviews = await Review.find({restaurant_id: review.restaurant_id}) 
+        const reviews = await Review.find({restaurant_id}) 
+        const totalRatings = review.reduce((sum, review) => {
+            sum += review.rating
+        },0)
+        const averageRating = totalRatings/reviews.length
+        const foundRestaurant = await Restaurant.find({_id: restaurant_id})
+        foundRestaurant.rating = averageRating;
+        await foundRestaurant.save()
+        res.status(200).json({updatedReview});
+    }
+
+    const deleteReview = async (req, res) =>{
+    const reviewId = req.params.reviewId;
+    const user_id = req.userInfo.id
+    const review = await Review.findById(reviewId);
+    if (!review) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+    if (review.user_id !== user_id) {
+        return res.status(403).json({ error: 'You are not authorized to update this review' });
+      }
+      const result = await Review.deleteOne({ _id: reviewId });
+    res.status(200).json({ message: 'Review deleted' });
+  } 
+  
+
 
 module.exports = {getReviews, postReview}
