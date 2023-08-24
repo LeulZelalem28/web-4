@@ -42,7 +42,9 @@ const searchRestaurants = asyncHandler(async (req, res) =>{
 //@access public
 const createRestaurant = asyncHandler(async (req, res) =>{
     const { name, description, address, contact, openingHours, category, foods } = req.body;
-    if(!name || !description || !address || !foods.name || !foods.price){
+    const duplicate = await Restaurant.findOne({ name }).exec();
+    if(duplicate) return res.status(409).json({message:"restaurant already exists"})
+    if(!name || !description || !address || !foods || !foods.every(food => food.name && food.price)){
         res.status(400)
         throw new Error("Missing mandatory field")
     }
@@ -92,7 +94,7 @@ const deleteRestaurant = asyncHandler(async (req, res) =>{
     if(!restaurant){
         return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
     }
-    const deletedRestaurant = await Restaurant.deleteOne(restaurantId)
+    const deletedRestaurant = await Restaurant.deleteOne({_id: restaurantId})
     res.status(200).json({message: "delete restaurant"})
 })
 
