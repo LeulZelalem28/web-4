@@ -42,6 +42,8 @@ const searchRestaurants = asyncHandler(async (req, res) =>{
 //@access public
 const createRestaurant = asyncHandler(async (req, res) =>{
     const { name, description, address, contact, openingHours, category, foods } = req.body;
+    const images = req.files.map((file) => file.path);
+    const featuredImage = req.file.path;
     const duplicate = await Restaurant.findOne({ name }).exec();
     if(duplicate) return res.status(409).json({message:"restaurant already exists"})
     if(!name || !description || !address || !foods || !foods.every(food => food.name && food.price)){
@@ -55,7 +57,9 @@ const createRestaurant = asyncHandler(async (req, res) =>{
         contact, 
         openingHours, 
         category, 
-        foods
+        foods,
+        images,
+        featuredImage,
   })
     res.status(201).json(newRestaurant)
 })

@@ -10,7 +10,7 @@ const loginUser = async (req, res) => {
     if(!foundUser) return res.sendStatus(401)
     const match = await bcrypt.compare(password, foundUser.password)
     if(match){
-    //const roles = Object.values(foundUser.roles).filter(Boolean);
+    const roles = Object.values(foundUser.roles).filter(Boolean);
     const accessToken = jwt.sign(
       // {
       //   "UserInfo": {
@@ -19,6 +19,7 @@ const loginUser = async (req, res) => {
       //   }
       { userInfo: {
         "username":foundUser.username,
+        "roles": roles,
         "id": foundUser._id
       }},
       process.env.ACCESS_TOKEN_SECRET, 
@@ -27,6 +28,7 @@ const loginUser = async (req, res) => {
     const refreshToken = jwt.sign(
       { userInfo: {
         "username":foundUser.username,
+        "roles": roles,
         "id": foundUser._id
       }},
       process.env.REFRESH_TOKEN_SECRET, 

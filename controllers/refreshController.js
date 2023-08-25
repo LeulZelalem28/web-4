@@ -7,7 +7,7 @@ const handleRefreshToken = async(req, res) => {
     const refreshToken = cookies.jwt
     const foundUser = await User.findOne({refreshToken}).exec()
     if(!foundUser) return res.sendStatus(403)
-    // const roles = Object.values(foundUser.roles);
+    const roles = Object.values(foundUser.roles);
     jwt.verify(refreshToken, 
                process.env.REFRESH_TOKEN_SECRET, 
                (err,decoded) => {
@@ -21,6 +21,7 @@ const handleRefreshToken = async(req, res) => {
                 //   }
                 { userInfo: {
                   "username":foundUser.username,
+                  "roles": roles,
                   "id": foundUser._id
                 }},
                 process.env.ACCESS_TOKEN_SECRET, 
