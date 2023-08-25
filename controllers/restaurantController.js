@@ -71,7 +71,7 @@ const updateRestaurant = asyncHandler(async (req, res) =>{
     }
     const restaurant = await Restaurant.findOne({_id: restaurantId})
     if(!restaurant){
-        return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
+        return res.status(204).json({ "message": `No restaurant matches ID ${req.params.id}.` });
     }
     const updatedRestaurant = await Restaurant.findByIdAndUpdate(
         req.params.id,
@@ -92,7 +92,7 @@ const deleteRestaurant = asyncHandler(async (req, res) =>{
     }
     const restaurant = await Restaurant.findOne({_id: restaurantId})
     if(!restaurant){
-        return res.status(204).json({ "message": `No employee matches ID ${req.params.id}.` });
+        return res.status(204).json({ "message": `No restaurant matches ID ${req.params.id}.` });
     }
     const deletedRestaurant = await Restaurant.deleteOne({_id: restaurantId})
     res.status(200).json({message: "delete restaurant"})
@@ -110,7 +110,7 @@ const getRestaurant = asyncHandler(async (req, res) =>{
     const restaurant = await Restaurant.findOne({_id: restaurantId})
     if(!restaurant){
         res.status(404)
-        throw new Error(`No employee matches ID ${req.params.id}.`)
+        throw new Error(`No erestaurant matches ID ${req.params.id}.`)
     }
     res.status(200).json(restaurant)
 })
