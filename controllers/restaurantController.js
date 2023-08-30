@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const Restaurant = require("../model/restaurantModel")
+
 //@desc GET all restaurants
 //@route GET /api/restaurants
 //@access public
@@ -36,86 +37,85 @@ const searchRestaurants = asyncHandler(async (req, res) =>{
     const searchQuery = await Restaurant.find({name:{$regex: query, $options: 'i'}})
     res.status(200).json(searchQuery)
 })
-const createRestaurant = asyncHandler(async (req, res) => {
+// const createRestaurant = asyncHandler(async (req, res) => {
 
-    const { name, description, address, contact, openingHours, category, foods } = req.body;
+//     const { name, description, address, contact, openingHours, category, foods } = req.body;
   
-    let images = [];
-    let featuredImage = null;
+//     // let images = [];
+//     // let featuredImage = null;
   
-    // Validate mandatory fields
-    if(!name || !description || !address || !foods || 
-       !foods.every(food => food.name && food.price)) {
-      res.status(400);
-      throw new Error("Missing mandatory fields"); 
-    }
+//     // Validate mandatory fields
+ 
+//     if( !name || !description || !address || !foods || !foods.every(food => food.name && food.price)){
+//         res.status(400)
+//         throw new Error("Missing mandatory field")
+//     }
+//     // // Handle images if provided
+//     // if(req.files) {
   
-    // Handle images if provided
-    if(req.files) {
+//     //   try {
+//     //     images = req.files.map(file => file.path);
+//     //   } catch (error) {
+//     //     res.status(400);
+//     //     throw new Error("Error processing images");
+//     //   }
   
-      try {
-        images = req.files.map(file => file.path);
-      } catch (error) {
-        res.status(400);
-        throw new Error("Error processing images");
-      }
+//     // }
   
-    }
+//     // if(req.file) {
+//     //   try {  
+//     //     featuredImage = req.file.path;
+//     //   } catch (error) {
+//     //     res.status(400);
+//     //     throw new Error("Error processing featured image");
+//     //   }
+//     // }
   
-    if(req.file) {
-      try {  
-        featuredImage = req.file.path;
-      } catch (error) {
-        res.status(400);
-        throw new Error("Error processing featured image");
-      }
-    }
+//     const duplicate = await Restaurant.findOne({name});
+//     if(duplicate) return res.status(409).json({message: "Restaurant exists"});
   
-    const duplicate = await Restaurant.findOne({name});
-    if(duplicate) return res.status(409).json({message: "Restaurant exists"});
+//     let newRestaurant;
   
-    let newRestaurant;
+//     try {
   
-    try {
+//       newRestaurant = await Restaurant.create({
+//         name,
+//         description,
+//         address,
+//         contact, 
+//         openingHours,
+//         category,
+//         foods,
+//         // images,
+//         // featuredImage
+//       });
   
-      newRestaurant = await Restaurant.create({
-        name,
-        description,
-        address,
-        contact, 
-        openingHours,
-        category,
-        foods,
-        images,
-        featuredImage
-      });
+//     } catch (error) {
+//       res.status(500);
+//       throw new Error("Error saving restaurant");
+//     }
   
-    } catch (error) {
-      res.status(500);
-      throw new Error("Error saving restaurant");
-    }
+//     res.status(201).json(newRestaurant);
   
-    res.status(201).json(newRestaurant);
-  
-  })
+//   })
 //@desc POST create a restaurant 
 //@route POST /api/restaurants
 //@access public
 // const createRestaurant = asyncHandler(async (req, res) =>{
 //     const { name, description, address, contact, openingHours, category, foods } = req.body;
-//     // const images = req.files.map((file) => file.path);
-//     // const featuredImages = req.file.path;
-//     console.log("hi")
-//     let images = [];
-//     let featuredImages = null;
+//     // // const images = req.files.map((file) => file.path);
+//     // // const featuredImages = req.file.path;
+//     // console.log("hi")
+//     // let images = [];
+//     // let featuredImages = null;
   
-//     if (req.files) {
-//       images = req.files.map((file) => file.path);
-//     }
+//     // if (req.files) {
+//     //   images = req.files.map((file) => file.path);
+//     // }
   
-//     if (req.file) {
-//       featuredImages = req.file.path;
-//     }
+//     // if (req.file) {
+//     //   featuredImages = req.file.path;
+//     // }
 //     const duplicate = await Restaurant.findOne({ name }).exec();
 //     if(duplicate) return res.status(409).json({message:"restaurant already exists"})
 //      // Check if the images field is empty
@@ -132,12 +132,148 @@ const createRestaurant = asyncHandler(async (req, res) => {
 //         openingHours, 
 //         category, 
 //         foods,
-//         images,
-//         featuredImages,
+//         // images,
+//         // featuredImages,
 //   })
 //   console.log(newRestaurant)
 //     res.status(201).json(newRestaurant)
 // })
+
+// restaurantController.js
+
+const createRestaurant = asyncHandler(async (req, res) => {
+  const { name, description, address, contact, openingHours, category, foods } = req.body;
+  let featuredImages = null;
+  // Validate mandatory fields
+  if (!name || !description || !address || !foods || !foods.every((food) => food.name && food.price)) {
+    res.status(400);
+    throw new Error("Missing mandatory field");
+  }
+
+const duplicate = await Restaurant.findOne({ name }).exec();
+  if (duplicate) {
+    return res.status(409).json({ message: "Restaurant already exists" });
+  }
+  // Handle featured image upload
+  
+  if (req.file) {
+    featuredImages = req.file.path;
+  }
+
+const newRestaurant = await Restaurant.create({
+    name,
+    description,
+    address,
+    contact,
+    openingHours,
+    category,
+    foods,
+    featuredImages: featuredImages,
+  });
+
+  console.log(newRestaurant);
+  res.status(201).json(newRestaurant);
+});
+
+// const createRestaurant = asyncHandler(async (req, res) => {
+//   const { name, description, address, contact, openingHours, category, foods } = req.body;
+
+//   // Validate mandatory fields
+//   if (!name || !description || !address || !foods || !foods.every((food) => food.name && food.price)) {
+//     res.status(400);
+//     throw new Error("Missing mandatory field");
+//   }
+
+//   const duplicate = await Restaurant.findOne({ name }).exec();
+//   if (duplicate) {
+//     return res.status(409).json({ message: "Restaurant already exists" });
+//   }
+
+//   const newRestaurant = await Restaurant.create({
+//     name,
+//     description,
+//     address,
+//     contact,
+//     openingHours,
+//     category,
+//     foods,
+//   });
+
+//   console.log(newRestaurant);
+//   res.status(201).json(newRestaurant);
+// });
+const addImagesToRestaurant = asyncHandler(async (req, res) => {
+  const { restaurantId } = req.params;
+
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, path.join(__dirname, '..', 'images'));
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + "-" + file.originalname);
+    }
+  });
+
+  const upload = multer({ storage });
+  
+  const uploadImages = upload.array("images");
+  const uploadFeaturedImage = upload.single("featuredImages", {
+    storage: multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, path.join(__dirname, '..', 'images'));
+      },
+    }),
+  });
+
+  uploadImages(req, res, async (err) => {
+    if (err) {
+      // Handle any upload errors
+      console.error(err);
+      return res.status(500).json({ message: "Image upload failed" });
+    }
+
+    uploadFeaturedImage(req, res, async (err) => {
+      if (err) {
+        // Handle any upload errors
+        console.error(err);
+        return res.status(500).json({ message: "Featured image upload failed" });
+      }
+
+      const { files } = req;
+      const images = files.map((file) => file.path);
+      const featuredImage = req.file.path;
+
+      const restaurant = await Restaurant.findById(restaurantId);
+      if (!restaurant) {
+        return res.status(404).json({ message: "Restaurant not found" });
+      }
+
+      restaurant.images = images;
+      restaurant.featuredImages = featuredImage;
+
+      const updatedRestaurant = await restaurant.save();
+      console.log(updatedRestaurant);
+      res.status(200).json(updatedRestaurant);
+    });
+  });
+});
+
+// const addImagesToRestaurant = asyncHandler(async (req, res) => {
+//   const { restaurantId } = req.params;
+//   const { images, featuredImage } = uploadImages(req);
+
+//   const restaurant = await Restaurant.findById(restaurantId);
+//   if (!restaurant) {
+//     return res.status(404).json({ message: "Restaurant not found" });
+//   }
+
+//   restaurant.images = images;
+//   restaurant.featuredImage = featuredImage;
+
+//   const updatedRestaurant = await restaurant.save();
+//   console.log(updatedRestaurant);
+//   res.status(200).json(updatedRestaurant);
+// });
 
 //@desc  update a restaurant
 //@route PUT /api/restaurants/:id
@@ -195,4 +331,4 @@ const getRestaurant = asyncHandler(async (req, res) =>{
 })
 
 
-module.exports = { getAllRestaurants, filterRestaurants, searchRestaurants, createRestaurant, updateRestaurant, deleteRestaurant, getRestaurant}
+module.exports = { addImagesToRestaurant, getAllRestaurants, filterRestaurants, searchRestaurants, createRestaurant, updateRestaurant, deleteRestaurant, getRestaurant}

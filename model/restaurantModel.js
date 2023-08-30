@@ -42,9 +42,9 @@ const restaurantSchema = new Schema({
         ref: 'Review'
       }
     ],
-    images: {
-      type: [String],
-    },
+    // images: {
+    //   type: [String],
+    // },
     featuredImages: {
       type: String,
       default:null
