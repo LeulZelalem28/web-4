@@ -19,10 +19,37 @@ const registerUser = async (req, res) => {
             email,
             password: hashedPassword
         });
+        const accessToken = jwt.sign(
+            // {
+            //   "UserInfo": {
+            //       "username": foundUser.username,
+            //       "roles": roles
+            //   }
+            { userInfo: {
+              "username":result.username,
+              "id": result._id
+            }},
+            process.env.ACCESS_TOKEN_SECRET, 
+            {expiresIn: "10m"})
+      
+          const refreshToken = jwt.sign(
+            { userInfo: {
+              "username":result.username,
+              "id": result._id
+            }},
+            process.env.REFRESH_TOKEN_SECRET, 
+            {expiresIn: "1d"})
+          result.refreshToken = refreshToken
+          const result1 = await result.save()
+          console.log(result1)
+          //console.log(roles)
+        //   foundUser.save()
+          res.cookie('jwt', refreshToken , {httpOnly: true, /*secure: true, sameSite: 'None',*/ maxAge: 24 * 60 * 60 * 1000})
+        //   res.json({/*roles,*/accessToken})
 
         console.log(result);
 
-        res.status(201).json({ 'success': `New user ${username} created!` });
+        res.status(201).json({ accessToken, 'success': `New user ${username} created!` });
     } catch (err) {
         res.status(500).json({ 'message': err.message });
     }

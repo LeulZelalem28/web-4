@@ -16,7 +16,7 @@ const logoutUser = async (req, res) =>{
     console.log(result);
 
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', /*secure: true,*/maxAge: 24 * 60 * 60 * 1000 });
-    res.sendStatus(204);
+    res.sendStatus(204)
     
 }
 

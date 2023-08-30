@@ -5,11 +5,17 @@ const cookieParser = require('cookie-parser')
 const { errorHandler } = require('./middleware/errorHandler');
 const { verifyJWT } = require('./middleware/verifyJWT');
 const app = express();
+const cors = require('cors');
+const corsOptions = require('./config/corsOptions');
+const credentials = require('./middleware/credentials');
 const PORT = process.env.PORT || 3500;
 
 //connect to DB
 connectDB()
 //Cross Origin Resource Sharing
+app.use(credentials);
+// Cross Origin Resource Sharing
+app.use(cors(corsOptions));
 
 //built-in middleware to handle url encoded form data
 app.use(express.urlencoded({ extended: false }))
@@ -25,6 +31,7 @@ app.use('/logout', require('./routes/logoutRoute'))
 app.use(verifyJWT)
 app.use('/api/restaurants', require('./routes/api/restaurantRoute'))
 app.use('/api/reviews', require('./routes/api/reviewRoute'))
+app.use('/api/user', require('./routes/api/userRoute'))
 
 app.use(errorHandler);
 app.listen(PORT, () =>{

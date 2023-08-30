@@ -36,33 +36,108 @@ const searchRestaurants = asyncHandler(async (req, res) =>{
     const searchQuery = await Restaurant.find({name:{$regex: query, $options: 'i'}})
     res.status(200).json(searchQuery)
 })
+const createRestaurant = asyncHandler(async (req, res) => {
 
+    const { name, description, address, contact, openingHours, category, foods } = req.body;
+  
+    let images = [];
+    let featuredImage = null;
+  
+    // Validate mandatory fields
+    if(!name || !description || !address || !foods || 
+       !foods.every(food => food.name && food.price)) {
+      res.status(400);
+      throw new Error("Missing mandatory fields"); 
+    }
+  
+    // Handle images if provided
+    if(req.files) {
+  
+      try {
+        images = req.files.map(file => file.path);
+      } catch (error) {
+        res.status(400);
+        throw new Error("Error processing images");
+      }
+  
+    }
+  
+    if(req.file) {
+      try {  
+        featuredImage = req.file.path;
+      } catch (error) {
+        res.status(400);
+        throw new Error("Error processing featured image");
+      }
+    }
+  
+    const duplicate = await Restaurant.findOne({name});
+    if(duplicate) return res.status(409).json({message: "Restaurant exists"});
+  
+    let newRestaurant;
+  
+    try {
+  
+      newRestaurant = await Restaurant.create({
+        name,
+        description,
+        address,
+        contact, 
+        openingHours,
+        category,
+        foods,
+        images,
+        featuredImage
+      });
+  
+    } catch (error) {
+      res.status(500);
+      throw new Error("Error saving restaurant");
+    }
+  
+    res.status(201).json(newRestaurant);
+  
+  })
 //@desc POST create a restaurant 
 //@route POST /api/restaurants
 //@access public
-const createRestaurant = asyncHandler(async (req, res) =>{
-    const { name, description, address, contact, openingHours, category, foods } = req.body;
-    const images = req.files.map((file) => file.path);
-    const featuredImage = req.file.path;
-    const duplicate = await Restaurant.findOne({ name }).exec();
-    if(duplicate) return res.status(409).json({message:"restaurant already exists"})
-    if(!name || !description || !address || !foods || !foods.every(food => food.name && food.price)){
-        res.status(400)
-        throw new Error("Missing mandatory field")
-    }
-    const newRestaurant = await Restaurant.create({
-        name, 
-        description, 
-        address, 
-        contact, 
-        openingHours, 
-        category, 
-        foods,
-        images,
-        featuredImage,
-  })
-    res.status(201).json(newRestaurant)
-})
+// const createRestaurant = asyncHandler(async (req, res) =>{
+//     const { name, description, address, contact, openingHours, category, foods } = req.body;
+//     // const images = req.files.map((file) => file.path);
+//     // const featuredImages = req.file.path;
+//     console.log("hi")
+//     let images = [];
+//     let featuredImages = null;
+  
+//     if (req.files) {
+//       images = req.files.map((file) => file.path);
+//     }
+  
+//     if (req.file) {
+//       featuredImages = req.file.path;
+//     }
+//     const duplicate = await Restaurant.findOne({ name }).exec();
+//     if(duplicate) return res.status(409).json({message:"restaurant already exists"})
+//      // Check if the images field is empty
+
+//     if( !name || !description || !address || !foods || !foods.every(food => food.name && food.price)){
+//         res.status(400)
+//         throw new Error("Missing mandatory field")
+//     }
+//     const newRestaurant = await Restaurant.create({
+//         name, 
+//         description, 
+//         address, 
+//         contact, 
+//         openingHours, 
+//         category, 
+//         foods,
+//         images,
+//         featuredImages,
+//   })
+//   console.log(newRestaurant)
+//     res.status(201).json(newRestaurant)
+// })
 
 //@desc  update a restaurant
 //@route PUT /api/restaurants/:id
