@@ -145,6 +145,7 @@ const createRestaurant = asyncHandler(async (req, res) => {
   const { name, description, address, contact, openingHours, category, foods } = req.body;
   let featuredImages = null;
   // Validate mandatory fields
+  console.log(req.file)
   if (!name || !description || !address || !foods || !foods.every((food) => food.name && food.price)) {
     res.status(400);
     throw new Error("Missing mandatory field");
